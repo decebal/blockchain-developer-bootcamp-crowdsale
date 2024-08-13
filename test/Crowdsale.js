@@ -1,5 +1,5 @@
-const { expect } = require('chai');
-const { ethers } = require('hardhat');
+const {expect} = require('chai');
+const {ethers} = require('hardhat');
 
 const tokens = (n) => {
     return ethers.utils.parseUnits(n.toString(), 'ether')
@@ -8,8 +8,7 @@ const tokens = (n) => {
 const ether = tokens
 
 describe('Crowdsale', () => {
-    let token, crowdsale
-    let deployer, user1
+    let token, crowdsale, deployer, user1
 
     beforeEach(async () => {
         const Crowdsale = await ethers.getContractFactory('Crowdsale')
@@ -17,13 +16,13 @@ describe('Crowdsale', () => {
 
         token = await Token.deploy('OWL Token', 'OWL', '1000000')
 
-        accounts = await ethers.getSigners()
+        const accounts = await ethers.getSigners()
         deployer = accounts[0]
         user1 = accounts[1]
 
         crowdsale = await Crowdsale.deploy(token.address, ether(1), '1000000')
 
-        let transaction = await token.connect(deployer).transfer(crowdsale.address, tokens(1000000))
+        const transaction = await token.connect(deployer).transfer(crowdsale.address, tokens(1000000))
         await transaction.wait()
     })
 
@@ -50,7 +49,7 @@ describe('Crowdsale', () => {
         describe('Success', () => {
 
             beforeEach(async () => {
-                transaction = await crowdsale.connect(user1).buyTokens(amount, { value: ether(10) })
+                transaction = await crowdsale.connect(user1).buyTokens(amount, {value: ether(10)})
                 result = await transaction.wait()
             })
 
@@ -73,8 +72,8 @@ describe('Crowdsale', () => {
 
         describe('Failure', () => {
 
-            it('rejects insufficent ETH', async () => {
-                await expect(crowdsale.connect(user1).buyTokens(tokens(10), { value: 0 })).to.be.reverted
+            it('rejects insufficient ETH', async () => {
+                (await expect(crowdsale.connect(user1)).buyTokens(tokens(10), {value: 0})).to.be.reverted
             })
 
         })
@@ -88,7 +87,7 @@ describe('Crowdsale', () => {
         describe('Success', () => {
 
             beforeEach(async () => {
-                transaction = await user1.sendTransaction({ to: crowdsale.address, value: amount })
+                transaction = await user1.sendTransaction({to: crowdsale.address, value: amount})
                 result = await transaction.wait()
             })
 
@@ -137,7 +136,7 @@ describe('Crowdsale', () => {
         describe('Success', () => {
 
             beforeEach(async () => {
-                transaction = await crowdsale.connect(user1).buyTokens(amount, { value: value })
+                transaction = await crowdsale.connect(user1).buyTokens(amount, {value: value})
                 result = await transaction.wait()
 
                 transaction = await crowdsale.connect(deployer).finalize()
