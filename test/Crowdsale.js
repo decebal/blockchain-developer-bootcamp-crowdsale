@@ -73,7 +73,7 @@ describe('Crowdsale', () => {
         describe('Failure', () => {
 
             it('rejects insufficient ETH', async () => {
-                (await expect(crowdsale.connect(user1)).buyTokens(tokens(10), {value: 0})).to.be.reverted
+                (await expect(crowdsale.connect(user1).buyTokens(tokens(10), {value: 0})).to.be.reverted)
             })
 
         })
