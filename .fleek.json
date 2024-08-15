@@ -1,0 +1,7 @@
+{
+  "build": {
+    "image": "node:22-alpine",
+    "command": "corepack enable && pnpm i && pnpm run build",
+    "publicDir": "build"
+  }
+}
