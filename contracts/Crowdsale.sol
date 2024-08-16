@@ -14,6 +14,8 @@ contract Crowdsale {
     event Buy(uint256 amount, address buyer);
     event Finalize(uint256 tokensSold, uint256 ethRaised);
 
+    mapping(address => bool) public whitelist;
+
     constructor(
         Token _token,
         uint256 _price,
@@ -30,17 +32,22 @@ contract Crowdsale {
         _;
     }
 
+    modifier onlyWhitelist() {
+        require(whitelist[msg.sender], "Caller is not on the whitelist");
+        _;
+    }
+
     // Buy tokens directly by sending Ether
     // --> https://docs.soliditylang.org/en/v0.8.15/contracts.html#receive-ether-function
 
-    receive() external payable {
+    receive() external payable onlyWhitelist {
         uint256 amount = msg.value / price;
         buyTokens(amount * 1e18);
     }
 
-    function buyTokens(uint256 _amount) public payable {
-        require(msg.value == (_amount / 1e18) * price);
-        require(token.balanceOf(address(this)) >= _amount);
+    function buyTokens(uint256 _amount) public payable onlyWhitelist {
+        require(msg.value == (_amount / 1e18) * price, "Insufficient ETH");
+        require(token.balanceOf(address(this)) >= _amount, "Insufficient Tokens");
         require(token.transfer(msg.sender, _amount));
 
         tokensSold += _amount;
@@ -61,5 +68,10 @@ contract Crowdsale {
         require(sent);
 
         emit Finalize(tokensSold, value);
+    }
+
+    //owner to add address to whitelist
+    function whitelistAddress(address _address) public onlyOwner {
+        whitelist[_address] = true;
     }
 }
