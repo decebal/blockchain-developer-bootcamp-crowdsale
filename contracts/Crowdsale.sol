@@ -10,6 +10,8 @@ contract Crowdsale {
     uint256 public price;
     uint256 public maxTokens;
     uint256 public tokensSold;
+    uint256 public deadline;
+    uint256 public currentTime;
 
     event Buy(uint256 amount, address buyer);
     event Finalize(uint256 tokensSold, uint256 ethRaised);
@@ -19,12 +21,14 @@ contract Crowdsale {
     constructor(
         Token _token,
         uint256 _price,
-        uint256 _maxTokens
+        uint256 _maxTokens,
+        uint256 _deadline
     ) {
         owner = msg.sender;
         token = _token;
         price = _price;
         maxTokens = _maxTokens;
+        deadline = _deadline;
     }
 
     modifier onlyOwner() {
@@ -37,15 +41,24 @@ contract Crowdsale {
         _;
     }
 
+    modifier onlyWhenOpen() {
+        require(block.timestamp <= deadline, "The crowdsale is closed");
+        _;
+    }
+
     // Buy tokens directly by sending Ether
     // --> https://docs.soliditylang.org/en/v0.8.15/contracts.html#receive-ether-function
 
-    receive() external payable onlyWhitelist {
+    receive() external payable onlyWhitelist onlyWhenOpen {
         uint256 amount = msg.value / price;
         buyTokens(amount * 1e18);
     }
 
-    function buyTokens(uint256 _amount) public payable onlyWhitelist {
+    function isOpen() public view returns (bool) {
+        return block.timestamp > deadline;
+    }
+
+    function buyTokens(uint256 _amount) public payable onlyWhitelist onlyWhenOpen {
         require(msg.value == (_amount / 1e18) * price, "Insufficient ETH");
         require(token.balanceOf(address(this)) >= _amount, "Insufficient Tokens");
         require(token.transfer(msg.sender, _amount));
@@ -64,7 +77,7 @@ contract Crowdsale {
         require(token.transfer(owner, token.balanceOf(address(this))));
 
         uint256 value = address(this).balance;
-        (bool sent, ) = owner.call{value: value}("");
+        (bool sent,) = owner.call{value: value}("");
         require(sent);
 
         emit Finalize(tokensSold, value);
