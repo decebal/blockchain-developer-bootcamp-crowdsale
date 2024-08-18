@@ -8,12 +8,12 @@ const tokens = (n) => {
 
 const ether = tokens
 
-describe('Crowdsale', () => {
+describe('TimedCrowdsale', () => {
     describe('Crowdsale Open', () => {
         let token, crowdsale, deployer, user1
 
         beforeEach(async () => {
-            const Crowdsale = await ethers.getContractFactory('Crowdsale')
+            const Crowdsale = await ethers.getContractFactory('TimedCrowdsale')
             const Token = await ethers.getContractFactory('Token')
 
             token = await Token.deploy('OWL Token', 'OWL', '1000000')
@@ -28,6 +28,8 @@ describe('Crowdsale', () => {
                 ether(1),
                 '1000000',
                 deadline,
+                '10',
+                '1000',
             )
 
             const transaction = await token.connect(deployer).transfer(crowdsale.address, tokens(1000000))
@@ -96,6 +98,35 @@ describe('Crowdsale', () => {
                 })
             })
 
+        })
+
+        describe('Minimum/Maximum Contributions', () => {
+
+            beforeEach(async () => {
+                await crowdsale.connect(deployer).whitelistAddress(user1.address)
+            })
+
+            describe('Success', () => {
+                let transaction, result
+                let amount = tokens(10)
+                it('transfers tokens', async () => {
+                    transaction = await crowdsale.connect(user1).buyTokens(amount, {value: ether(10)})
+                    result = await transaction.wait()
+                    expect(await token.balanceOf(crowdsale.address)).to.equal(tokens(999990))
+                    expect(await token.balanceOf(user1.address)).to.equal(amount)
+                })
+            })
+
+            describe('Failure', () => {
+
+                it('prevents below minimum contribution', async () => {
+                    (await expect(crowdsale.connect(user1).buyTokens(tokens(9), {value: ether(9)})).to.be.revertedWith('Tokens amount is below minimum required'))
+                })
+                it('prevents above maximum contribution', async () => {
+                    (await expect(crowdsale.connect(user1).buyTokens(tokens(1001), {value: ether(1001)})).to.be.revertedWith('Tokens amount is above maximum allowed'))
+                })
+
+            })
         })
 
         describe('Sending ETH', () => {
@@ -229,7 +260,7 @@ describe('Crowdsale', () => {
             let value = ether(10)
 
             beforeEach(async () => {
-                const Crowdsale = await ethers.getContractFactory('Crowdsale')
+                const Crowdsale = await ethers.getContractFactory('TimedCrowdsale')
                 const Token = await ethers.getContractFactory('Token')
 
                 token = await Token.deploy('OWL Token', 'OWL', '1000000')
@@ -244,6 +275,8 @@ describe('Crowdsale', () => {
                     ether(1),
                     '1000000',
                     deadline,
+                    '10',
+                    '10000',
                 )
 
                 const transaction = await token.connect(deployer).transfer(crowdsale.address, tokens(1000000))
@@ -268,7 +301,7 @@ describe('Crowdsale', () => {
             let value = ether(10)
 
             beforeEach(async () => {
-                const Crowdsale = await ethers.getContractFactory('Crowdsale')
+                const Crowdsale = await ethers.getContractFactory('TimedCrowdsale')
                 const Token = await ethers.getContractFactory('Token')
 
                 token = await Token.deploy('OWL Token', 'OWL', '1000000')
@@ -283,6 +316,8 @@ describe('Crowdsale', () => {
                     ether(1),
                     '1000000',
                     deadline,
+                    '10',
+                    '10000',
                 )
 
                 const transaction = await token.connect(deployer).transfer(crowdsaleAfterDeadline.address, tokens(1000000))

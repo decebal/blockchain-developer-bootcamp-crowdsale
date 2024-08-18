@@ -10,7 +10,7 @@ import Info from './Info';
 import Loading from './Loading';
 
 // Artifacts
-import CROWDSALE_ABI from '../abis/Crowdsale.json'
+import CROWDSALE_ABI from '../abis/TimedCrowdsale.json'
 import TOKEN_ABI from '../abis/Token.json'
 
 // Config
@@ -26,6 +26,9 @@ function App() {
     const [price, setPrice] = useState(0)
     const [maxTokens, setMaxTokens] = useState(0)
     const [tokensSold, setTokensSold] = useState(0)
+    const [deadline, setDeadline] = useState(new Date())
+    const [minContribution, setMinContribution] = useState(0)
+    const [maxContribution, setMaxContribution] = useState(0)
 
     const [isLoading, setIsLoading] = useState(true)
 
@@ -62,6 +65,22 @@ function App() {
         // Fetch tokens sold
         const tokensSold = ethers.utils.formatUnits(await crowdsale.tokensSold(), 18)
         setTokensSold(tokensSold)
+        console.log(await crowdsale.minContribution())
+
+        // // Fetch Deadline and format the date
+        // const deadline = ethers.utils.formatUnits(await crowdsale.deadline())
+        // console.log({deadline})
+        // setDeadline(deadline)
+        //
+        // Fetch Minimum required tokens
+        // const minContribution = await crowdsale.minContribution()
+        // console.log({minContribution})
+        // setMinContribution(minContribution)
+        //
+        // // Fetch tokens sold
+        // const maxContribution = ethers.utils.formatUnits(await crowdsale.maxContribution(), 18)
+        // console.log({maxContribution})
+        // setMaxContribution(maxContribution)
 
         setIsLoading(false)
     }
