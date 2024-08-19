@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import {Container} from 'react-bootstrap';
 import {ethers} from 'ethers'
+import {fromUnixTime, intervalToDuration, subMonths} from 'date-fns'
 
 // Components
 import Navigation from './Navigation';
@@ -15,6 +16,7 @@ import TOKEN_ABI from '../abis/Token.json'
 
 // Config
 import config from '../config.json';
+import {Countdown} from "./Countdown";
 
 function App() {
     const [provider, setProvider] = useState(null)
@@ -29,18 +31,19 @@ function App() {
     const [deadline, setDeadline] = useState(new Date())
     const [minContribution, setMinContribution] = useState(0)
     const [maxContribution, setMaxContribution] = useState(0)
+    const [isOpen, setIsOpen] = useState(false)
 
     const [isLoading, setIsLoading] = useState(true)
 
     const loadBlockchainData = async () => {
-        // Intiantiate provider
+        // Instantiate provider
         const provider = new ethers.providers.Web3Provider(window.ethereum)
         setProvider(provider)
 
         // Fetch Chain ID
         const {chainId} = await provider.getNetwork()
 
-        // Intiantiate contracts
+        // Instantiate contracts
         const token = new ethers.Contract(config[chainId].token.address, TOKEN_ABI, provider)
         const crowdsale = new ethers.Contract(config[chainId].crowdsale.address, CROWDSALE_ABI, provider)
         setCrowdsale(crowdsale)
@@ -65,22 +68,24 @@ function App() {
         // Fetch tokens sold
         const tokensSold = ethers.utils.formatUnits(await crowdsale.tokensSold(), 18)
         setTokensSold(tokensSold)
-        console.log(await crowdsale.minContribution())
 
-        // // Fetch Deadline and format the date
-        // const deadline = ethers.utils.formatUnits(await crowdsale.deadline())
-        // console.log({deadline})
-        // setDeadline(deadline)
-        //
+        // Fetch Deadline and format the date
+        const deadline = ethers.utils.formatUnits(await crowdsale.deadline(), 0)
+        const duration = intervalToDuration({
+            start: new Date(),
+            end: fromUnixTime(deadline)
+        })
+        const isOpen = duration.days >= 0
+        setDeadline(fromUnixTime(deadline))
+        setIsOpen(isOpen)
+
         // Fetch Minimum required tokens
-        // const minContribution = await crowdsale.minContribution()
-        // console.log({minContribution})
-        // setMinContribution(minContribution)
-        //
-        // // Fetch tokens sold
-        // const maxContribution = ethers.utils.formatUnits(await crowdsale.maxContribution(), 18)
-        // console.log({maxContribution})
-        // setMaxContribution(maxContribution)
+        const minContribution = ethers.utils.formatUnits(await crowdsale.minContribution(), 18)
+        setMinContribution(minContribution)
+
+        // Fetch Max Token Contribution
+        const maxContribution = ethers.utils.formatUnits(await crowdsale.maxContribution(), 18)
+        setMaxContribution(maxContribution)
 
         setIsLoading(false)
     }
@@ -101,15 +106,18 @@ function App() {
                 <Loading/>
             ) : (
                 <>
+                    <Countdown className='my-4' deadline={deadline} isOpen={isOpen}/>
                     <p className='text-center'>
-                        <strong>Current Price:</strong> {price} ETH
+                        <strong className="mx-4">Current Price:</strong> {price} ETH
+                        <strong className="mx-4">Minimum contribution:</strong> {minContribution} OWL
+                        <strong className="mx-4">Maximum contribution:</strong> {maxContribution} OWL
                     </p>
-                    <Buy
+                    {(isOpen && <Buy
                         provider={provider}
                         price={price}
                         crowdsale={crowdsale}
                         setIsLoading={setIsLoading}
-                    />
+                    />)}
                     <Progress
                         maxTokens={maxTokens}
                         tokensSold={tokensSold}

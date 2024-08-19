@@ -61,7 +61,7 @@ contract TimedCrowdsale {
     }
 
     function isOpen() public view returns (bool) {
-        return block.timestamp > deadline;
+        return block.timestamp <= deadline;
     }
 
     function buyTokens(uint256 _amount) public payable onlyWhitelist onlyWhenOpen {
