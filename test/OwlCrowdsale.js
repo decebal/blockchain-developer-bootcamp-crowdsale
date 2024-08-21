@@ -8,12 +8,12 @@ const tokens = (n) => {
 
 const ether = tokens
 
-describe('TimedCrowdsale', () => {
+describe('OwlCrowdsale', () => {
     describe('Crowdsale Open', () => {
         let token, crowdsale, deployer, user1
 
         beforeEach(async () => {
-            const Crowdsale = await ethers.getContractFactory('TimedCrowdsale')
+            const Crowdsale = await ethers.getContractFactory('OwlCrowdsale')
             const Token = await ethers.getContractFactory('Token')
 
             token = await Token.deploy('OWL Token', 'OWL', '1000000')
@@ -257,7 +257,7 @@ describe('TimedCrowdsale', () => {
             let value = ether(10)
 
             beforeEach(async () => {
-                const Crowdsale = await ethers.getContractFactory('TimedCrowdsale')
+                const Crowdsale = await ethers.getContractFactory('OwlCrowdsale')
                 const Token = await ethers.getContractFactory('Token')
 
                 token = await Token.deploy('OWL Token', 'OWL', '1000000')
@@ -298,7 +298,7 @@ describe('TimedCrowdsale', () => {
             let value = ether(10)
 
             beforeEach(async () => {
-                const Crowdsale = await ethers.getContractFactory('TimedCrowdsale')
+                const Crowdsale = await ethers.getContractFactory('OwlCrowdsale')
                 const Token = await ethers.getContractFactory('Token')
 
                 token = await Token.deploy('OWL Token', 'OWL', '1000000')

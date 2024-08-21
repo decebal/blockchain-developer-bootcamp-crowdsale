@@ -1,10 +1,14 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
+import "./crowdsale/validation/TimedCrowdsale.sol";
+import "./crowdsale/distribution/RefundableCrowdsale.sol";
+
+
 import "hardhat/console.sol";
 import "./Token.sol";
 
-contract TimedCrowdsale {
+contract OwlCrowdsale is RefundableCrowdsale,TimedCrowdsale {
     address owner;
     Token public token;
     uint256 public price;

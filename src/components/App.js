@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import {Container} from 'react-bootstrap';
 import {ethers} from 'ethers'
-import {fromUnixTime, intervalToDuration, subMonths} from 'date-fns'
+import {fromUnixTime, intervalToDuration} from 'date-fns'
 
 // Components
 import Navigation from './Navigation';

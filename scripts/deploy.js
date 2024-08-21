@@ -24,7 +24,7 @@ async function main() {
     console.log(`Token deployed to: ${token.address}\n`)
 
     // Deploy Crowdsale
-    const Crowdsale = await hre.ethers.getContractFactory("TimedCrowdsale")
+    const Crowdsale = await hre.ethers.getContractFactory("OwlCrowdsale")
     const crowdsale = await Crowdsale.deploy(
         token.address,
         PRICE,

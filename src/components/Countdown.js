@@ -1,6 +1,6 @@
+import {intervalToDuration} from "date-fns"
 import React, {useEffect, useState} from 'react'
 import {TimeUnit} from './Countdown/time-unit'
-import {fromUnixTime, intervalToDuration} from "date-fns"
 
 const Countdown = ({deadline, isOpen, className}) => {
     const [duration, setDuration] = useState({});
