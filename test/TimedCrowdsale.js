@@ -152,15 +152,12 @@ describe('TimedCrowdsale', () => {
             })
 
             describe('Failure', () => {
-                //TODO, the expectation cannot be met, it throws "Error: VM Exception while processing transaction: reverted with reason string 'Caller is not on the whitelist'"
-                it.skip('prevents non-whitelist from buying tokens via receive', async () => {
-                    transaction = await user1.sendTransaction({
+                it('prevents non-whitelist from buying tokens via receive', async () => {
+                    expect(user1.sendTransaction({
                         to: crowdsale.address,
                         value: amount,
                         gasLimit: 51000
-                    })
-                    result = await transaction.wait()
-                    expect(result).to.be.reverted
+                    })).to.be.reverted
                 })
             })
         })
@@ -326,17 +323,16 @@ describe('TimedCrowdsale', () => {
             })
 
             it('prevents user from buying tokens after deadline', async () => {
-                (await expect(crowdsaleAfterDeadline.connect(user1).buyTokens(amount, {value})).to.be.revertedWith('The crowdsale is closed'))
+                await expect(crowdsaleAfterDeadline.connect(user1).buyTokens(amount, {value}))
+                    .to.be.revertedWith('The crowdsale is closed')
             })
 
-            it.skip('prevents user from buying tokens after deadline via receive', async () => {
-                transaction = await user1.sendTransaction({
+            it('prevents user from buying tokens after deadline via receive', async () => {
+                await expect(user1.sendTransaction({
                     to: crowdsaleAfterDeadline.address,
                     value: amount,
                     gasLimit: 51000
-                })
-                result = await transaction.wait()
-                expect(result).to.be.reverted
+                })).to.be.reverted
             })
 
         })
